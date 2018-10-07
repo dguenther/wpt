@@ -75,7 +75,6 @@ class TestRunner(object):
 
     def teardown(self):
         self.executor.teardown()
-        self.send_message("runner_teardown")
         self.result_queue = None
         self.command_queue = None
         self.browser = None
@@ -395,7 +394,6 @@ class TestRunnerManager(threading.Thread):
             RunnerManagerState.error: {},
             RunnerManagerState.stop: {},
             None: {
-                "runner_teardown": self.runner_teardown,
                 "log": self.log,
                 "error": self.error
             }
@@ -696,10 +694,6 @@ class TestRunnerManager(threading.Thread):
             self.test_runner_proc.join(10)
         else:
             self.logger.debug("Testrunner exited with code %i" % self.test_runner_proc.exitcode)
-
-    def runner_teardown(self):
-        self.ensure_runner_stopped()
-        return RunnerManagerState.stop()
 
     def send_message(self, command, *args):
         self.remote_queue.put((command, args))
